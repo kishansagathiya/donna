@@ -1,4 +1,19 @@
-node_modules
-dist
+# Vite / React (see repo root .gitignore for shared patterns)
+node_modules/
+dist/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Local overrides
 *.local
+
+# OS
 .DS_Store
+
+# Logs & tooling
+*.log
+.eslintcache
+coverage/

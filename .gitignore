@@ -1,4 +1,34 @@
-node_modules
-dist
-*.local
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+
+# Environment & secrets
+.env
+.env.*
+!.env.example
+
+# OS
 .DS_Store
+Thumbs.db
+
+# Local overrides (Vite, editors, etc.)
+*.local
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Test coverage
+coverage/
+
+# TypeScript
+*.tsbuildinfo
+
+# Editor caches
+.eslintcache

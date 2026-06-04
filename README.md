@@ -1,7 +1,8 @@
 Another AI second brain, but this one is the BEST!!
 
-Purely software for now—a native app that listens in the background on your machine.
+## Repos
 
-## Landing page
-
-See [donna-web](./donna-web).
+| Project | Description |
+|---------|-------------|
+| [donna-app](./donna-app) | iOS app |
+| [donna-web](./donna-web) | Landing page |
