@@ -1,0 +1,77 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.landing {
+  width: 100%;
+  max-width: 32rem;
+  text-align: center;
+}
+
+.landing h1 {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 6vw, 3rem);
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  margin-bottom: 2rem;
+}
+
+.landing h1 em {
+  font-style: italic;
+  color: var(--accent);
+}
+
+.waitlist-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
+.waitlist-form input {
+  flex: 1 1 200px;
+  min-width: 0;
+  max-width: 100%;
+  padding: 0.85rem 1.15rem;
+  font-family: inherit;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.waitlist-form input::placeholder {
+  color: var(--text-faint);
+}
+
+.waitlist-form input:focus {
+  border-color: var(--accent);
+}
+
+.waitlist-form button {
+  padding: 0.85rem 1.5rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--bg-deep);
+  background: var(--accent);
+  border-radius: 100px;
+  transition: transform 0.15s, box-shadow 0.2s;
+}
+
+.waitlist-form button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px var(--accent-glow);
+}
+
+.waitlist-success {
+  font-size: 1rem;
+  color: var(--accent);
+}
