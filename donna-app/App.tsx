@@ -11,7 +11,6 @@
 import React, { useState } from 'react';
 import {
   Platform,
-  Pressable,
   StatusBar,
   StyleSheet,
   Text,
@@ -28,8 +27,7 @@ import {
   request,
   RESULTS,
 } from 'react-native-permissions';
-
-type MicState = 'idle' | 'requesting' | 'listening' | 'error';
+import { MicButton, type MicState } from './src/components/MicButton';
 
 function getMicPermission() {
   return Platform.OS === 'ios'
@@ -49,6 +47,7 @@ function App() {
 }
 
 function AppContent() {
+  const isDarkMode = useColorScheme() === 'dark';
   const safeAreaInsets = useSafeAreaInsets();
   const [state, setState] = useState<MicState>('idle');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -72,9 +71,20 @@ function AppContent() {
       if (result !== RESULTS.GRANTED) {
         result = await request(permission);
       }
+      if (result === RESULTS.UNAVAILABLE) {
+        setState('error');
+        setErrorMsg(
+          'Microphone permission is unavailable. Rebuild the iOS app (pod install).',
+        );
+        return;
+      }
       if (result !== RESULTS.GRANTED) {
         setState('error');
-        setErrorMsg('Microphone permission denied');
+        setErrorMsg(
+          result === RESULTS.BLOCKED
+            ? 'Microphone access blocked. Enable it in Settings.'
+            : 'Microphone permission denied',
+        );
         return;
       }
       // TODO: start native recording here once a compatible library is chosen
@@ -85,38 +95,30 @@ function AppContent() {
     }
   };
 
-  const label = state === 'listening' ? 'Stop' : 'Talk to Donna';
   const statusText =
-    state === 'listening'
-      ? 'Listening…'
-      : state === 'error'
-      ? errorMsg ?? 'Something went wrong'
-      : null;
+    state === 'error' ? (errorMsg ?? 'Something went wrong') : null;
 
   return (
     <View
       style={[
         styles.container,
+        isDarkMode && styles.containerDark,
         {
           paddingTop: safeAreaInsets.top,
           paddingBottom: safeAreaInsets.bottom,
         },
       ]}
     >
-      <Pressable
+      <MicButton
+        state={state}
         onPress={toggleTalk}
-        accessibilityRole="button"
-        accessibilityLabel={label}
-        testID="mic-toggle"
-        style={({ pressed }) => [
-          styles.button,
-          state === 'listening' && styles.buttonActive,
-          pressed && styles.buttonPressed,
-        ]}
-      >
-        <Text style={styles.buttonLabel}>{label}</Text>
-      </Pressable>
-      {statusText ? <Text style={styles.status}>{statusText}</Text> : null}
+        disabled={state === 'requesting'}
+      />
+      {statusText ? (
+        <Text style={[styles.status, isDarkMode && styles.statusDark]}>
+          {statusText}
+        </Text>
+      ) : null}
     </View>
   );
 }
@@ -128,27 +130,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#ffffff',
   },
-  button: {
-    paddingVertical: 24,
-    paddingHorizontal: 40,
-    borderRadius: 32,
-    backgroundColor: '#111111',
-  },
-  buttonActive: {
-    backgroundColor: '#c0392b',
-  },
-  buttonPressed: {
-    opacity: 0.7,
-  },
-  buttonLabel: {
-    color: '#ffffff',
-    fontSize: 20,
-    fontWeight: '600',
+  containerDark: {
+    backgroundColor: '#000000',
   },
   status: {
     marginTop: 16,
     color: '#666666',
     fontSize: 14,
+  },
+  statusDark: {
+    color: '#aaaaaa',
   },
 });
 
