@@ -1,1 +1,12 @@
-{}
+{
+  "name": "donna",
+  "private": true,
+  "workspaces": [
+    "donna-server"
+  ],
+  "scripts": {
+    "dev:server": "npm run dev -w donna-server",
+    "start:server": "npm run start -w donna-server",
+    "test:voice": "node donna-server/scripts/ws-test.mjs"
+  }
+}

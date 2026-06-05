@@ -1,16 +1,14 @@
 /**
- * Donna — single-button microphone UI
+ * Donna — tap to talk with the voice backend.
  *
- * Tap to request mic permission and toggle a "listening" state.
- * Native recording is stubbed out (react-native-audio-recorder-player is
- * incompatible with RN 0.85.3 + New Architecture; will be replaced later).
+ * Mic on → stream PCM to donna-server → client VAD commits turns →
+ * play Donna's reply audio. Tap again to end the session.
  *
  * @format
  */
 
-import React, { useState } from 'react';
+import React from 'react';
 import {
-  Platform,
   StatusBar,
   StyleSheet,
   Text,
@@ -21,19 +19,8 @@ import {
   SafeAreaProvider,
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
-import {
-  check,
-  PERMISSIONS,
-  request,
-  RESULTS,
-} from 'react-native-permissions';
-import { MicButton, type MicState } from './src/components/MicButton';
-
-function getMicPermission() {
-  return Platform.OS === 'ios'
-    ? PERMISSIONS.IOS.MICROPHONE
-    : PERMISSIONS.ANDROID.RECORD_AUDIO;
-}
+import { MicButton } from './src/components/MicButton';
+import { useVoiceSession } from './src/hooks/useVoiceSession';
 
 function App() {
   const isDarkMode = useColorScheme() === 'dark';
@@ -49,54 +36,7 @@ function App() {
 function AppContent() {
   const isDarkMode = useColorScheme() === 'dark';
   const safeAreaInsets = useSafeAreaInsets();
-  const [state, setState] = useState<MicState>('idle');
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
-
-  const toggleTalk = async () => {
-    if (state === 'listening') {
-      setState('idle');
-      setErrorMsg(null);
-      return;
-    }
-
-    if (state === 'requesting') {
-      return;
-    }
-
-    setState('requesting');
-    setErrorMsg(null);
-    try {
-      const permission = getMicPermission();
-      let result = await check(permission);
-      if (result !== RESULTS.GRANTED) {
-        result = await request(permission);
-      }
-      if (result === RESULTS.UNAVAILABLE) {
-        setState('error');
-        setErrorMsg(
-          'Microphone permission is unavailable. Rebuild the iOS app (pod install).',
-        );
-        return;
-      }
-      if (result !== RESULTS.GRANTED) {
-        setState('error');
-        setErrorMsg(
-          result === RESULTS.BLOCKED
-            ? 'Microphone access blocked. Enable it in Settings.'
-            : 'Microphone permission denied',
-        );
-        return;
-      }
-      // TODO: start native recording here once a compatible library is chosen
-      setState('listening');
-    } catch (e: unknown) {
-      setState('error');
-      setErrorMsg(e instanceof Error ? e.message : 'Failed to start');
-    }
-  };
-
-  const statusText =
-    state === 'error' ? (errorMsg ?? 'Something went wrong') : null;
+  const { state, toggleTalk, statusText, disabled } = useVoiceSession();
 
   return (
     <View
@@ -109,13 +49,12 @@ function AppContent() {
         },
       ]}
     >
-      <MicButton
-        state={state}
-        onPress={toggleTalk}
-        disabled={state === 'requesting'}
-      />
+      <MicButton state={state} onPress={toggleTalk} disabled={disabled} />
       {statusText ? (
-        <Text style={[styles.status, isDarkMode && styles.statusDark]}>
+        <Text
+          style={[styles.status, isDarkMode && styles.statusDark]}
+          accessibilityRole="text"
+        >
           {statusText}
         </Text>
       ) : null}
@@ -135,8 +74,11 @@ const styles = StyleSheet.create({
   },
   status: {
     marginTop: 16,
+    paddingHorizontal: 24,
     color: '#666666',
     fontSize: 14,
+    textAlign: 'center',
+    lineHeight: 20,
   },
   statusDark: {
     color: '#aaaaaa',

@@ -7,7 +7,12 @@ import {
   View,
 } from 'react-native';
 
-export type MicState = 'idle' | 'requesting' | 'listening' | 'error';
+export type MicState =
+  | 'idle'
+  | 'requesting'
+  | 'listening'
+  | 'processing'
+  | 'error';
 
 const CORE_SIZE = 88;
 const WRAPPER_SIZE = 160;
@@ -77,11 +82,12 @@ export function MicButton({ state, onPress, disabled }: MicButtonProps) {
   const coreScale = useRef(new Animated.Value(1)).current;
   const coreOpacity = useRef(new Animated.Value(1)).current;
 
-  const isListening = state === 'listening';
+  const isListening = state === 'listening' || state === 'processing';
   const isRequesting = state === 'requesting';
-  const accessibilityLabel = isListening
-    ? 'Stop listening'
-    : 'Start listening';
+  const accessibilityLabel =
+    state === 'listening' || state === 'processing'
+      ? 'Stop listening'
+      : 'Start listening';
 
   useEffect(() => {
     const rings = ringsRef.current;

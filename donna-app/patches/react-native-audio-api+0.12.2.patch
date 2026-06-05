@@ -1,0 +1,14 @@
+diff --git a/node_modules/react-native-audio-api/ios/audioapi/ios/system/AudioSessionManager.mm b/node_modules/react-native-audio-api/ios/audioapi/ios/system/AudioSessionManager.mm
+index cb9cca6..a8d5bb5 100644
+--- a/node_modules/react-native-audio-api/ios/audioapi/ios/system/AudioSessionManager.mm
++++ b/node_modules/react-native-audio-api/ios/audioapi/ios/system/AudioSessionManager.mm
+@@ -508,7 +508,8 @@ - (AVAudioSessionCategoryOptions)optionsFromArray:(NSArray *)optionsArray
+     }
+ 
+     if ([option isEqualToString:@"allowBluetoothHFP"]) {
+-      options |= AVAudioSessionCategoryOptionAllowBluetoothHFP;
++      // SDK < 26 does not define AllowBluetoothHFP; both HFP and legacy AllowBluetooth are 0x4.
++      options |= 0x4;
+       continue;
+     }
+ 
