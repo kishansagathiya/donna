@@ -1,2 +1,4 @@
+# Generated audio (bakeoff, ws-test, TTS scratch)
 *.aiff
+bakeoff-results.json
 ws-test-reply.bin

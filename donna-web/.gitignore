@@ -1,6 +1,7 @@
-# Vite / React (see repo root .gitignore for shared patterns)
+# Vite / React
 node_modules/
 dist/
+.vite/
 
 # Environment
 .env
@@ -17,3 +18,4 @@ dist/
 *.log
 .eslintcache
 coverage/
+*.tsbuildinfo
