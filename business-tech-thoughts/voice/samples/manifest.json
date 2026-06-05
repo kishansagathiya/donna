@@ -1,0 +1,27 @@
+[
+  {
+    "id": 1,
+    "file": "utterance-1.wav",
+    "reference": "Schedule a meeting with Alex for tomorrow at three PM."
+  },
+  {
+    "id": 2,
+    "file": "utterance-2.wav",
+    "reference": "Donna, what did I say about the Q3 roadmap in last week's notes?"
+  },
+  {
+    "id": 3,
+    "file": "utterance-3.wav",
+    "reference": "Remind me to call the dentist after lunch."
+  },
+  {
+    "id": 4,
+    "file": "utterance-4.wav",
+    "reference": "The API rate limit is four hundred twenty requests per minute."
+  },
+  {
+    "id": 5,
+    "file": "utterance-5.wav",
+    "reference": "Um, actually, cancel that—just add milk to my grocery list."
+  }
+]

@@ -1,0 +1,133 @@
+{
+  "ranAt": "2026-06-05T05:29:07.997Z",
+  "keysPresent": {
+    "openrouter": true,
+    "openai": false,
+    "deepgram": false,
+    "cartesia": true,
+    "elevenlabs": true
+  },
+  "models": {
+    "stt": [
+      "mistralai/voxtral-mini-transcribe",
+      "nvidia/parakeet-tdt-0.6b-v3"
+    ],
+    "tts": "openai/gpt-audio-mini"
+  },
+  "stt": {
+    "whisper_direct": null,
+    "deepgram": null,
+    "mistralai_voxtral-mini-transcribe": {
+      "avgMs": 1088,
+      "avgWer": 0.11454545454545455,
+      "rows": [
+        {
+          "id": 1,
+          "ms": 2599,
+          "model": "mistralai/voxtral-mini-transcribe",
+          "transcript": "Schedule a meeting with Alex for tomorrow at 3 p.m.",
+          "wer": 0.1,
+          "reference": "Schedule a meeting with Alex for tomorrow at three PM."
+        },
+        {
+          "id": 2,
+          "ms": 693,
+          "model": "mistralai/voxtral-mini-transcribe",
+          "transcript": "Donna, what did I say about the Q3 roadmap in last week's notes?",
+          "wer": 0,
+          "reference": "Donna, what did I say about the Q3 roadmap in last week's notes?"
+        },
+        {
+          "id": 3,
+          "ms": 751,
+          "model": "mistralai/voxtral-mini-transcribe",
+          "transcript": "Remind me to call the dentist after lunch.",
+          "wer": 0,
+          "reference": "Remind me to call the dentist after lunch."
+        },
+        {
+          "id": 4,
+          "ms": 556,
+          "model": "mistralai/voxtral-mini-transcribe",
+          "transcript": "The API rate limit is 420 requests per minute.",
+          "wer": 0.2727272727272727,
+          "reference": "The API rate limit is four hundred twenty requests per minute."
+        },
+        {
+          "id": 5,
+          "ms": 843,
+          "model": "mistralai/voxtral-mini-transcribe",
+          "transcript": "Um, actually, cancel that. Just add milk to my grocery list.",
+          "wer": 0.2,
+          "reference": "Um, actually, cancel that—just add milk to my grocery list."
+        }
+      ]
+    },
+    "nvidia_parakeet-tdt-0.6b-v3": {
+      "avgMs": 845,
+      "avgWer": 0.11454545454545455,
+      "rows": [
+        {
+          "id": 1,
+          "ms": 1062,
+          "model": "nvidia/parakeet-tdt-0.6b-v3",
+          "transcript": "Schedule a meeting with Alex for tomorrow at 3 p.m.",
+          "wer": 0.1,
+          "reference": "Schedule a meeting with Alex for tomorrow at three PM."
+        },
+        {
+          "id": 2,
+          "ms": 916,
+          "model": "nvidia/parakeet-tdt-0.6b-v3",
+          "transcript": "Donna, what did I say about the Q3 roadmap in last week's notes?",
+          "wer": 0,
+          "reference": "Donna, what did I say about the Q3 roadmap in last week's notes?"
+        },
+        {
+          "id": 3,
+          "ms": 632,
+          "model": "nvidia/parakeet-tdt-0.6b-v3",
+          "transcript": "Remind me to call the dentist after lunch.",
+          "wer": 0,
+          "reference": "Remind me to call the dentist after lunch."
+        },
+        {
+          "id": 4,
+          "ms": 912,
+          "model": "nvidia/parakeet-tdt-0.6b-v3",
+          "transcript": "The API rate limit is 420 requests per minute.",
+          "wer": 0.2727272727272727,
+          "reference": "The API rate limit is four hundred twenty requests per minute."
+        },
+        {
+          "id": 5,
+          "ms": 705,
+          "model": "nvidia/parakeet-tdt-0.6b-v3",
+          "transcript": "Um, actually, cancel that, just add milk to my grocery list.",
+          "wer": 0.2,
+          "reference": "Um, actually, cancel that—just add milk to my grocery list."
+        }
+      ]
+    }
+  },
+  "tts": {
+    "probeText": "Thanks Donna, I will check my calendar now.",
+    "openrouter": null,
+    "openrouter_error": "OpenRouter TTS 403: {\"error\":{\"message\":\"The request is prohibited due to a violation of provider Terms Of Service.\",\"code\":403,\"metadata\":{\"provider_name\":null}},\"user_id\":\"user_2y8pBjwbi4TuiHlM8485KLe3c4C\"}",
+    "openai_tts_1": null,
+    "cartesia_sonic_3_5": {
+      "ms": 850,
+      "bytes": 196510
+    },
+    "cartesia_error": null,
+    "cartesia_stream": {
+      "ttfbMs": 673,
+      "totalMs": 970,
+      "bytes": 211680,
+      "chunks": 13
+    },
+    "cartesia_stream_error": null,
+    "elevenlabs_turbo": null,
+    "elevenlabs_error": "ElevenLabs TTS 401: {\"detail\":{\"type\":\"payment_required\",\"code\":\"payment_issue\",\"message\":\"Your subscription has a failed or incomplete payment. Complete the latest invoice to continue usage.\",\"status\":\"payment_issue\",\"request_id\":\"4eaedd77b57c2c637c15f9e33e4f4043\"}}"
+  }
+}
