@@ -21,7 +21,22 @@ Donna uses Supabase Auth with Postgres, same pattern as [glucose-ai](https://git
 
 ```bash
 cp .env.example .env   # add OPENROUTER_API_KEY + a TTS key (Cartesia, ElevenLabs, or OpenAI)
+set -a
+source .env
+set +a
 npm install
 npm run dev:server     # http://localhost:8787, ws://localhost:8787/voice
 npm run test:voice     # sends a sample utterance, writes reply audio to voice/ws-test-reply.bin
 ```
+
+### App → local backend (no code changes)
+
+The iOS app reads voice settings from the same root `.env` (synced when you `npm start` in `donna-app`).
+
+| Scenario | `.env` |
+|----------|--------|
+| iOS Simulator + local server (default) | `DONNA_VOICE_TARGET=local` |
+| Physical iPhone on LAN | `DONNA_VOICE_HOST_OVERRIDE=<your Mac IP>` |
+| Dev build → production Railway | `DONNA_VOICE_TARGET=production` |
+
+Release builds always use production. Restart Metro after changing `.env`.
