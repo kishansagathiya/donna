@@ -79,7 +79,7 @@ All provider calls use **`OPENROUTER_API_KEY`**:
 
 | Failure | Behavior |
 |---------|----------|
-| STT empty / low confidence | Ask user to repeat; do not call LLM |
+| STT empty / low confidence / noise | Silent skip; at most one retry prompt per session on clear failed attempt |
 | LLM timeout | Retry once; else spoken apology via TTS |
 | TTS failure | Fall back to text-only response on client |
 | User interrupts (v2) | Cancel in-flight TTS; clear buffer |
