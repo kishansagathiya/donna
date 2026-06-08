@@ -36,7 +36,7 @@ The iOS app reads voice settings from the same root `.env` (synced when you `npm
 | Scenario | `.env` |
 |----------|--------|
 | iOS Simulator + local server (default) | `DONNA_VOICE_TARGET=local` |
-| Physical iPhone on LAN | `DONNA_VOICE_HOST_OVERRIDE=<your Mac IP>` |
+| Physical iPhone on LAN | `DONNA_VOICE_TARGET=local` (Mac host auto-detected on `npm start`) |
 | Dev build → production Railway | `DONNA_VOICE_TARGET=production` |
 
 Release builds always use production. Restart Metro after changing `.env`.
