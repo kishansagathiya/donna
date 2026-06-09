@@ -6,7 +6,10 @@
   ],
   "scripts": {
     "dev:server": "npm run dev -w donna-server",
+    "dev:server-go": "cd donna-server-go && go run ./cmd/server",
     "start:server": "npm run start -w donna-server",
-    "test:voice": "node donna-server/scripts/ws-test.mjs"
+    "start:server-go": "cd donna-server-go && go run ./cmd/server",
+    "test:voice": "node donna-server/scripts/ws-test.mjs",
+    "test:voice:go": "SUPABASE_URL= SUPABASE_SERVICE_ROLE_KEY= npm run test:voice"
   }
 }
