@@ -126,36 +126,21 @@ async function main() {
   send(ws, { type: 'turn.end' });
 
   const audioOut = [];
-  let segment = [];
   let format = 'mp3';
 
   while (true) {
     const message = await waitFor(
       ws,
-      (m) =>
-        m.type === 'audio.out' ||
-        m.type === 'audio.flush' ||
-        m.type === 'turn.done' ||
-        m.type === 'error',
+      (m) => m.type === 'audio.out' || m.type === 'turn.done' || m.type === 'error',
     );
     if (message.type === 'error') {
       throw new Error(`${message.code}: ${message.message}`);
     }
     if (message.type === 'audio.out') {
       format = message.format;
-      segment.push(Buffer.from(message.data, 'base64'));
-    }
-    if (message.type === 'audio.flush') {
-      format = message.format;
-      if (segment.length > 0) {
-        audioOut.push(Buffer.concat(segment));
-        segment = [];
-      }
+      audioOut.push(Buffer.from(message.data, 'base64'));
     }
     if (message.type === 'turn.done') {
-      if (segment.length > 0) {
-        audioOut.push(Buffer.concat(segment));
-      }
       console.log('timings:', message.timings);
       break;
     }
