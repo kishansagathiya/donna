@@ -1,6 +1,3 @@
-[submodule "donna-server"]
-	path = donna-server
-	url = https://github.com/kishansagathiya/donna-server.git
 [submodule "donna-web"]
 	path = donna-web
 	url = https://github.com/kishansagathiya/donna-web.git

@@ -6,7 +6,7 @@ Another AI second brain, but this one is the BEST!!
 |---------|-------------|
 | [donna-app](./donna-app) | iOS app |
 | [donna-web](./donna-web) | Landing page |
-| [donna-server](./donna-server) | Voice backend (WebSocket STT → LLM → TTS) |
+| [donna-server-go](./donna-server-go) | Voice backend (WebSocket STT → LLM → TTS) |
 
 ## Auth (Supabase + Sign in with Apple)
 
@@ -15,7 +15,7 @@ Donna uses Supabase Auth with Postgres, same pattern as [glucose-ai](https://git
 1. Create a Supabase project.
 2. Enable Apple provider in Supabase Auth (Client ID: `com.kishansagathiya.donna`).
 3. Set `SUPABASE_URL` and publishable key in `donna-app/src/config.ts`.
-4. Set `SUPABASE_URL` in root `.env` so `donna-server` requires a valid JWT on `/voice`.
+4. Set `SUPABASE_URL` in root `.env` so `donna-server-go` requires a valid JWT on `/voice`.
 
 ## Voice backend (local dev)
 
