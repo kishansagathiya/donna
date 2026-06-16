@@ -2,6 +2,7 @@
   "name": "donna",
   "private": true,
   "scripts": {
+    "dev:iphone": "node scripts/dev-iphone.mjs",
     "dev:server": "cd donna-server-go && go run ./cmd/server",
     "start:server": "cd donna-server-go && go run ./cmd/server",
     "test:voice": "node scripts/ws-test.mjs",
