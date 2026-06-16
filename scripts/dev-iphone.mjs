@@ -4,7 +4,7 @@
  *   npm run dev:iphone
  *
  * Starts donna-server-go + Metro, syncs voice host for LAN, builds to device.
- * Optional: DONNA_IOS_DEVICE="Kishan's iPhone" or a UDID to pick a device.
+ * Optional in .env: DONNA_IOS_DEVICE=<UDID> or device name to pick a device.
  */
 import { spawn, execSync } from 'node:child_process';
 import fs from 'node:fs';
@@ -117,17 +117,14 @@ function ensureDependencies() {
   }
 }
 
-function listPhysicalIOSDevices() {
-  let output = '';
-  try {
-    output = execSync('xcrun xctrace list devices', {
-      encoding: 'utf8',
-      stdio: ['ignore', 'pipe', 'ignore'],
-    });
-  } catch {
-    fail('Could not list devices — is Xcode installed?');
-  }
+function normalizeDeviceName(name) {
+  return name
+    .replace(/[\u2018\u2019\u0060\u00B4]/g, "'")
+    .trim()
+    .toLowerCase();
+}
 
+function parseXctraceDevices(output) {
   const devices = [];
   let inDevices = false;
   for (const line of output.split('\n')) {
@@ -152,18 +149,72 @@ function listPhysicalIOSDevices() {
   return devices;
 }
 
-function pickDevice(devices) {
-  const preferred = process.env.DONNA_IOS_DEVICE?.trim();
+function parseInstrumentsDevices(output) {
+  const devices = [];
+  for (const line of output.split('\n')) {
+    const match = line.match(/^(.+?) \(([0-9A-Fa-f-]{25,})\)/);
+    if (!match) continue;
+
+    const name = match[1].trim();
+    const udid = match[2];
+    if (/Simulator|Mac/i.test(name)) continue;
+    if (/iPhone|iPad/i.test(name)) {
+      devices.push({ name, udid });
+    }
+  }
+  return devices;
+}
+
+function listPhysicalIOSDevices() {
+  const byUdid = new Map();
+
+  try {
+    const output = execSync('xcrun xctrace list devices', {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    });
+    for (const device of parseXctraceDevices(output)) {
+      byUdid.set(device.udid, device);
+    }
+  } catch {
+    // Fall back to instruments below.
+  }
+
+  if (byUdid.size === 0) {
+    try {
+      const output = execSync('xcrun instruments -s devices', {
+        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'ignore'],
+      });
+      for (const device of parseInstrumentsDevices(output)) {
+        byUdid.set(device.udid, device);
+      }
+    } catch {
+      fail('Could not list devices — is Xcode installed?');
+    }
+  }
+
+  return [...byUdid.values()];
+}
+
+function pickDevice(devices, fileEnv) {
+  const preferred = (
+    process.env.DONNA_IOS_DEVICE ?? fileEnv.DONNA_IOS_DEVICE
+  )?.trim();
   if (preferred) {
+    const normalizedPreferred = normalizeDeviceName(preferred);
     const hit =
       devices.find((d) => d.udid === preferred) ??
       devices.find((d) => d.name === preferred) ??
+      devices.find(
+        (d) => normalizeDeviceName(d.name) === normalizedPreferred,
+      ) ??
       devices.find((d) =>
-        d.name.toLowerCase().includes(preferred.toLowerCase()),
+        normalizeDeviceName(d.name).includes(normalizedPreferred),
       );
     if (!hit) {
       fail(
-        `No connected device matches DONNA_IOS_DEVICE="${preferred}". Connected: ${devices.map((d) => d.name).join(', ') || '(none)'}`,
+        `No connected device matches DONNA_IOS_DEVICE="${preferred}". Connected: ${devices.map((d) => `${d.name} (${d.udid})`).join(', ') || '(none)'}`,
       );
     }
     return hit;
@@ -318,7 +369,7 @@ async function main() {
   validateEnv(env);
   ensureDependencies();
 
-  const device = pickDevice(listPhysicalIOSDevices());
+  const device = pickDevice(listPhysicalIOSDevices(), env);
   log(`Target device: ${device.name} (${device.udid})`);
 
   syncAppEnv();
@@ -356,7 +407,7 @@ async function main() {
   log(`Building and launching on ${device.name}…`);
   await runForeground(
     'npx',
-    ['react-native', 'run-ios', '--device', device.name],
+    ['react-native', 'run-ios', '--udid', device.udid, '--no-packager'],
     { cwd: appRoot },
   );
 
