@@ -40,3 +40,38 @@ The iOS app reads voice settings from the same root `.env` (synced when you `npm
 | Dev build → production Railway | `DONNA_VOICE_TARGET=production` |
 
 Release builds always use production. Restart Metro after changing `.env`.
+
+## Tests
+
+```bash
+npm test                                   # Go server tests (go test ./...)
+npm run test:voice                         # live voice smoke test (needs server + keys)
+
+# Time-to-first-token benchmarks (live server, report-only, no pass/fail):
+DONNA_AUTH_TOKEN=<supabase JWT> npm run test:ttft        # both web + RN paths
+DONNA_AUTH_TOKEN=<supabase JWT> npm run test:ttft:web    # web client path
+DONNA_AUTH_TOKEN=<supabase JWT> npm run test:ttft:rn     # iOS/RN client path
+
+# Benchmark a specific model (switches via PATCH /account, restores after):
+DONNA_AUTH_TOKEN=<JWT> DONNA_TTFT_MODEL=z-ai/glm-5.2 npm run test:ttft
+DONNA_AUTH_TOKEN=<JWT> DONNA_TTFT_MODEL=moonshotai/kimi-k2.6 npm run test:ttft:web
+```
+
+TTFT benchmarks measure wall-clock time from chat request send to the first `chunk` SSE event, against `DONNA_API_BASE` (default: Railway production). They reproduce each client's exact request contract (`donna-web/src/services/chatApi.ts` and `donna-app/src/services/chatApi.ts`). Setting `DONNA_TTFT_MODEL` PATCHes `/account` to that model before the runs and restores the original model afterwards (the slug must be in the server's allowlist — `GET /account` shows `available_models`).
+
+| Env | Default | Notes |
+|-----|---------|-------|
+| `DONNA_API_BASE` | `https://donna-server-go-production.up.railway.app` | set to `http://localhost:8787` for local |
+| `DONNA_AUTH_TOKEN` | _(required for prod)_ | user access_token JWT from Supabase (Apple Sign-In) |
+| `DONNA_TTFT_RUNS` | `5` | iterations per client |
+| `DONNA_TTFT_PROMPT` | `Hello` | prompt sent each run |
+| `DONNA_TTFT_MODEL` | _(server default)_ | LLM slug to benchmark; must be in server's `available_models` |
+
+`test:ttft = 2 × runs` real LLM calls (10 by default). Each run starts a fresh session so history doesn't inflate TTFT. The RN script reproduces the RN request contract in Node (`react-native-sse` can't run outside the app), so it measures server + network TTFT — not on-device native overhead.
+
+Get a `DONNA_AUTH_TOKEN` from the web app after signing in with Apple: DevTools console →
+```js
+const k = Object.keys(localStorage).find(k => k.endsWith('-auth-token'));
+copy(JSON.parse(localStorage.getItem(k)).access_token);
+```
+The token expires (~1hr); grab a fresh one if a run returns 401.

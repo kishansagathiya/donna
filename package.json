@@ -7,7 +7,10 @@
     "start:server": "cd donna-server-go && go run ./cmd/server",
     "test": "cd donna-server-go && go test ./...",
     "test:voice": "node scripts/ws-test.mjs",
-    "test:voice:no-auth": "SUPABASE_URL= SUPABASE_SERVICE_ROLE_KEY= npm run test:voice"
+    "test:voice:no-auth": "SUPABASE_URL= SUPABASE_SERVICE_ROLE_KEY= npm run test:voice",
+    "test:ttft": "node scripts/ttft-web.mjs && node scripts/ttft-rn.mjs",
+    "test:ttft:web": "node scripts/ttft-web.mjs",
+    "test:ttft:rn": "node scripts/ttft-rn.mjs"
   },
   "devDependencies": {
     "ws": "^8.18.2"
