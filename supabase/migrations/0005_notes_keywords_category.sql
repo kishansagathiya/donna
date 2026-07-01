@@ -1,5 +1,6 @@
 -- Notes: AI-extracted keywords + category from the indexer.
 -- Idempotent (uses IF NOT EXISTS). Builds on the notes table from 0000_init.sql.
+-- Applied via Supabase GitHub Integration.
 
 -- keyword + category columns (both optional; null until the indexer runs)
 alter table notes add column if not exists keywords text[] not null default '{}';
