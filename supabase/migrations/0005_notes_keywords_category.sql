@@ -7,18 +7,20 @@ alter table notes add column if not exists keywords text[] not null default '{}'
 alter table notes add column if not exists category text;
 
 -- Fold keywords + category into the FTS search_vector so tag/category terms match.
--- The search_vector is GENERATED ALWAYS, so we replace the expression.
+-- Postgres doesn't allow altering a generated column's expression in place,
+-- so we drop and recreate the column + index.
 drop index if exists notes_search_idx;
-alter table notes alter column search_vector drop expression;
-alter table notes alter column search_vector set generated always as (
-  to_tsvector('english',
-    coalesce(title, '') || ' ' ||
-    coalesce(content, '') || ' ' ||
-    coalesce(preview, '') || ' ' ||
-    coalesce(array_to_string(keywords, ' '), '') || ' ' ||
-    coalesce(category, '')
-  )
-) stored;
+alter table notes drop column if exists search_vector;
+alter table notes add column search_vector tsvector
+  generated always as (
+    to_tsvector('english',
+      coalesce(title, '') || ' ' ||
+      coalesce(content, '') || ' ' ||
+      coalesce(preview, '') || ' ' ||
+      coalesce(array_to_string(keywords, ' '), '') || ' ' ||
+      coalesce(category, '')
+    )
+  ) stored;
 create index if not exists notes_search_idx on notes using gin (search_vector);
 
 -- Index for filtering by category
