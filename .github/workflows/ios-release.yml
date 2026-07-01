@@ -1,0 +1,50 @@
+name: iOS App Store Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      submit:
+        description: Submit to App Store Connect after build
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    name: Build and submit iOS app
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: donna-app
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: donna-app/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Sync production env for release build
+        run: node scripts/sync-env.mjs
+        env:
+          DONNA_VOICE_TARGET: production
+
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Build iOS app (EAS)
+        run: eas build --platform ios --profile production --non-interactive
+
+      - name: Submit to App Store Connect
+        if: inputs.submit
+        run: eas submit --platform ios --profile production --latest --non-interactive
