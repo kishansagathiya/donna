@@ -1,6 +1,11 @@
 name: iOS App Store Release
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - "donna-app"
+      - ".github/workflows/ios-release.yml"
   workflow_dispatch:
     inputs:
       submit:
@@ -46,5 +51,5 @@ jobs:
         run: eas build --platform ios --profile production --non-interactive
 
       - name: Submit to App Store Connect
-        if: inputs.submit
+        if: github.event_name == 'push' || inputs.submit
         run: eas submit --platform ios --profile production --latest --non-interactive
