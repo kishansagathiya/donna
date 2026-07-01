@@ -105,15 +105,17 @@ $$;
 -- ---------------------------------------------------------------------------
 create or replace function recompute_tag_counts(p_user_id uuid)
 returns void
-language sql as $$
-  with usage as (
-    select user_id, tag, count(*)::int as cnt
+language plpgsql as $$
+begin
+  -- Delete all tags for this user
+  delete from tags where user_id = p_user_id;
+  
+  -- Re-insert based on current note_tags
+  insert into tags (user_id, name, count)
+    select p_user_id, tag, count(*)::int
     from note_tags
     where user_id = p_user_id
-    group by user_id, tag
-  )
-  delete from tags where user_id = p_user_id;
-  insert into tags (user_id, name, count)
-    select user_id, tag, cnt from usage
+    group by tag
     on conflict (user_id, name) do update set count = excluded.count, updated_at = now();
+end;
 $$;
