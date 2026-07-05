@@ -25,7 +25,7 @@ create_bucket() {
     "$SUPABASE_URL/storage/v1/bucket")
   if [[ "$status" == "200" || "$status" == "201" ]]; then
     echo "Created bucket: $id"
-  elif [[ "$status" == "409" ]]; then
+  elif [[ "$status" == "409" ]] || grep -q '"error":"Duplicate"' /tmp/bucket_resp.json 2>/dev/null; then
     echo "Bucket already exists: $id"
   else
     echo "Failed to create bucket $id (HTTP $status):" >&2
