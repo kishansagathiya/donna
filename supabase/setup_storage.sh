@@ -35,5 +35,6 @@ create_bucket() {
 }
 
 create_bucket "conversation-audio"
+create_bucket "note-audio"
 create_bucket "knowledge-assets"
 echo "Storage buckets ready."
