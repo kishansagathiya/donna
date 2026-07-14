@@ -8,14 +8,18 @@ Another AI second brain, but this one is the BEST!!
 | [donna-web](./donna-web) | Landing page |
 | [donna-server-go](./donna-server-go) | Voice backend (WebSocket STT → LLM → TTS) |
 
-## Auth (Supabase + Sign in with Apple)
+## Auth (Supabase + Sign in with Apple / Google)
 
 Donna uses Supabase Auth with Postgres, same pattern as [glucose-ai](https://github.com/kishansagathiya/glucose-ai).
 
 1. Create a Supabase project.
-2. Enable Apple provider in Supabase Auth (Client ID: `com.kishansagathiya.donna`).
-3. Set `SUPABASE_URL` and publishable key in `donna-app/src/config.ts`.
-4. Set `SUPABASE_URL` in root `.env` so `donna-server-go` requires a valid JWT on `/voice`.
+2. Enable Apple provider in Supabase Auth (Client ID: `com.kishansagathiya.donna`; web Services ID: `com.kishansagathiya.donna.web`).
+3. Enable Google provider in Supabase Auth with a Google Cloud **Web** OAuth Client ID + Secret (and the iOS Client ID for the app). For native iOS Google Sign-In, enable **Skip nonce check**.
+4. Set `SUPABASE_URL` and publishable key in `donna-app/src/config.ts`.
+5. Set `GOOGLE_WEB_CLIENT_ID` / `GOOGLE_IOS_CLIENT_ID` in `donna-app/src/config.ts`, and add the iOS `REVERSED_CLIENT_ID` URL scheme to `donna-app/ios/Donna/Info.plist`.
+6. Set `SUPABASE_URL` in root `.env` so `donna-server-go` requires a valid JWT on `/voice`.
+
+Web Google sign-in uses Supabase OAuth redirect (no client ID in `donna-web`). See `donna-web/README.md` for redirect URL setup.
 
 ## Voice backend (local dev)
 
@@ -62,14 +66,14 @@ TTFT benchmarks measure wall-clock time from chat request send to the first `chu
 | Env | Default | Notes |
 |-----|---------|-------|
 | `DONNA_API_BASE` | `https://donna-server-go-production.up.railway.app` | set to `http://localhost:8787` for local |
-| `DONNA_AUTH_TOKEN` | _(required for prod)_ | user access_token JWT from Supabase (Apple Sign-In) |
+| `DONNA_AUTH_TOKEN` | _(required for prod)_ | user access_token JWT from Supabase (Apple or Google Sign-In) |
 | `DONNA_TTFT_RUNS` | `5` | iterations per client |
 | `DONNA_TTFT_PROMPT` | `Hello` | prompt sent each run |
 | `DONNA_TTFT_MODEL` | _(server default)_ | LLM slug to benchmark; must be in server's `available_models` |
 
 `test:ttft = 2 × runs` real LLM calls (10 by default). Each run starts a fresh session so history doesn't inflate TTFT. The RN script reproduces the RN request contract in Node (`react-native-sse` can't run outside the app), so it measures server + network TTFT — not on-device native overhead.
 
-Get a `DONNA_AUTH_TOKEN` from the web app after signing in with Apple: DevTools console →
+Get a `DONNA_AUTH_TOKEN` from the web app after signing in: DevTools console →
 ```js
 const k = Object.keys(localStorage).find(k => k.endsWith('-auth-token'));
 copy(JSON.parse(localStorage.getItem(k)).access_token);
