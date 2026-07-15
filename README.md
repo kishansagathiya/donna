@@ -63,6 +63,11 @@ DONNA_AUTH_TOKEN=<JWT> DONNA_TTFT_MODEL=moonshotai/kimi-k2.6 npm run test:ttft:w
 
 TTFT benchmarks measure wall-clock time from chat request send to the first `chunk` SSE event, against `DONNA_API_BASE` (default: Railway production). They reproduce each client's exact request contract (`donna-web/src/services/chatApi.ts` and `donna-app/src/services/chatApi.ts`). Setting `DONNA_TTFT_MODEL` PATCHes `/account` to that model before the runs and restores the original model afterwards (the slug must be in the server's allowlist — `GET /account` shows `available_models`).
 
+When the server returns turn timings, each run also prints the pre-LLM,
+augmentation, preferences, and provider first-token breakdown. This separates
+Donna's setup time from model-provider latency while wall-clock TTFT remains the
+primary client-visible measurement.
+
 | Env | Default | Notes |
 |-----|---------|-------|
 | `DONNA_API_BASE` | `https://donna-server-go-production.up.railway.app` | set to `http://localhost:8787` for local |
