@@ -117,6 +117,7 @@ async function runOnce() {
   let sessionId = '';
   let reply = '';
   let streamError = null;
+  let serverTimings = null;
 
   while (true) {
     const { done, value } = await reader.read();
@@ -158,6 +159,9 @@ async function runOnce() {
           case 'done':
             if (parsed.reply) reply = parsed.reply;
             if (parsed.session_id) sessionId = parsed.session_id;
+            if (parsed.timings && typeof parsed.timings === 'object') {
+              serverTimings = parsed.timings;
+            }
             break;
           case 'error':
             streamError = parsed.message ?? 'Chat failed';
@@ -177,7 +181,21 @@ async function runOnce() {
     throw new Error('No chunk event received before stream end');
   }
 
-  return { ttft: firstChunkAt - t0, reply, sessionId };
+  return { ttft: firstChunkAt - t0, reply, sessionId, serverTimings };
+}
+
+function formatServerTimings(timings) {
+  if (!timings) return '';
+  const parts = [];
+  for (const [label, key] of [
+    ['pre-LLM', 'preLlmMs'],
+    ['augment', 'augmentMs'],
+    ['prefs', 'preferencesMs'],
+    ['LLM-first', 'llmFirstTokenMs'],
+  ]) {
+    if (Number.isFinite(timings[key])) parts.push(`${label}=${timings[key]}ms`);
+  }
+  return parts.length ? `  server(${parts.join(', ')})` : '';
 }
 
 async function main() {
@@ -203,14 +221,27 @@ async function main() {
   }
 
   let ttfts;
+  let serverSamples;
   try {
     ttfts = [];
+    serverSamples = {
+      preLlmMs: [],
+      augmentMs: [],
+      preferencesMs: [],
+      llmFirstTokenMs: [],
+    };
     for (let i = 1; i <= runs; i++) {
       try {
-        const { ttft, reply } = await runOnce();
+        const { ttft, reply, serverTimings } = await runOnce();
         ttfts.push(ttft);
+        for (const key of Object.keys(serverSamples)) {
+          if (Number.isFinite(serverTimings?.[key])) {
+            serverSamples[key].push(serverTimings[key]);
+          }
+        }
         console.log(
           `[web] run ${i}/${runs}  TTFT = ${Math.round(ttft)} ms` +
+            formatServerTimings(serverTimings) +
             `  (reply: ${JSON.stringify(reply.slice(0, 60))}${reply.length > 60 ? '…' : ''})`,
         );
       } catch (err) {
@@ -235,6 +266,15 @@ async function main() {
     `[web] summary  min=${Math.round(s.min)}  median=${Math.round(s.median)}  ` +
       `p95=${Math.round(s.p95)}  mean=${Math.round(s.mean)}  max=${Math.round(s.max)} ms`,
   );
+  const serverSummary = Object.entries(serverSamples)
+    .filter(([, values]) => values.length > 0)
+    .map(([key, values]) => {
+      const span = summarize(values);
+      return `${key}: median=${Math.round(span.median)} p95=${Math.round(span.p95)}ms`;
+    });
+  if (serverSummary.length > 0) {
+    console.log(`[web] server   ${serverSummary.join('  ')}`);
+  }
 }
 
 main().catch((err) => {
