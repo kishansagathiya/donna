@@ -27,13 +27,13 @@
  * Each iteration starts a fresh session (no session_id) so timings aren't
  * muddied by conversation history.
  *
- * IMPORTANT CAVEAT: The iOS app uses `react-native-sse`'s native `EventSource`
- * (a native iOS module) to parse the SSE stream. That native module cannot run
- * in Node, so this script reproduces the RN client's REQUEST CONTRACT (body
+ * IMPORTANT CAVEAT: The iOS app streams chat over an immediate XHR SSE
+ * transport (`donna-app/src/services/sseXhr.ts`). That native XHR path cannot
+ * run in Node, so this script reproduces the RN client's REQUEST CONTRACT (body
  * shape + headers) using Node's global fetch + a manual SSE byte parser. It
  * measures server + network TTFT for the RN request contract. It does NOT
- * measure on-device overhead (native EventSource parsing, JNI bridge, JS
- * thread scheduling, React state update) — only request→first parsed `chunk`.
+ * measure on-device overhead (XHR progress buffering, JS thread scheduling,
+ * React state update) — only request→first parsed `chunk`.
  * For true on-device mobile TTFT, add `performance.now()` instrumentation in
  * `donna-app/src/services/chatApi.ts` (the `chunk` event listener) and capture
  * from device logs.
@@ -87,7 +87,7 @@ async function runOnce() {
   const t0 = performance.now();
 
   // RN buildBody omits history/session_id/mode when absent — body is just { message }.
-  // RN does NOT send an Accept header (react-native-sse EventSource handles the stream).
+  // RN does NOT send an Accept header from chatApi (the XHR transport adds Accept itself).
   const res = await fetch(`${apiBase}/chat?stream=1`, {
     method: 'POST',
     headers: {
