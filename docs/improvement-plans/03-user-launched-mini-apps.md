@@ -1,195 +1,295 @@
-# Epic: Mini Apps
+# Plan: Mini Apps Platform
 
-**Status:** Draft — living plan (no implementation yet)  
-**Type:** Epic (will be broken into issues/PRs later)  
-**Owner:** TBD  
+**Status:** Draft plan → GitHub epic  
+**Epic issue:** [#151 Mini Apps platform](https://github.com/kishansagathiya/donna/issues/151)  
+**Phase issues:** [#146](https://github.com/kishansagathiya/donna/issues/146) · [#147](https://github.com/kishansagathiya/donna/issues/147) · [#148](https://github.com/kishansagathiya/donna/issues/148) · [#149](https://github.com/kishansagathiya/donna/issues/149) · [#150](https://github.com/kishansagathiya/donna/issues/150)  
+**Related:** [Epic #132 Intent → Action platform](https://github.com/kishansagathiya/donna/issues/132)  
 **Last updated:** 2026-07-16
 
-> This document is the working plan for Mini Apps on Donna.  
-> We will keep editing it until the shape feels right, then slice it into an epic + tickets.  
-> **Do not treat early sections as locked product decisions.**
+---
+
+## Summary
+
+Build Donna’s **Mini Apps** platform so people can **launch their own little apps on Donna** — primarily for themselves, optionally shared with others.
+
+ChatGPT is a blank chat. Donna already owns the user’s life stream (voice, chat, notes, memory, daily briefing). This epic makes that stream **productizable by the user**: package a job into an app with identity, configuration, triggers, runtime, state, results UI, and (later) distribution.
+
+A scheduled “news I’m interested in” brief is **one** scenario. Mini Apps are **not** saved-prompt recipes. Prompts/instructions are one building block inside a richer app model (inputs, tools, state, artifacts, UI, sharing).
 
 ---
 
-## 1. Why this exists
+## Problem
 
-Donna is strong as a conversational second brain (chat, voice, notes, memory, daily briefing). People also want **small, durable things that keep working for them** — not only one-off chats they have to remember to start.
+Today, repeatable personal jobs live in the user’s head:
 
-Mini Apps are how users **launch their own little apps on Donna**: built primarily for personal use, then optionally made available to other users.
+- Re-type the same prompt every morning
+- Remember to open chat and ask for a review
+- Hack schedules with calendar reminders that don’t run Donna
+- No way to give a friend “the same tool I use” without copy-pasting instructions
 
-A scheduled “news I’m interested in” brief is **one** example of a mini app — not the definition of the product.
-
----
-
-## 2. Working definition (broad)
-
-A **Mini App** is a user-owned (or installed) product surface on Donna that:
-
-1. Has a clear job (one primary outcome users return for)
-2. Can run on demand and/or from triggers (time, events, chat, etc.)
-3. Can use Donna’s brain (memory, notes, tools, models) under the user’s identity
-4. Has its own identity in the product (name, home screen, history/state — not buried as a saved prompt)
-5. Can stay private, or be published so others can install / fork it
-
-Mini Apps are **not** merely saved prompts. Prompts may be one building block inside a richer app model.
+Daily briefing is a first-party taste of this — but users cannot invent their own equivalents.
 
 ---
 
-## 3. Product principles
+## Vision
 
-1. **Personal-first.** Creating something useful for yourself is the default success path. Sharing is optional and later.
-2. **Feels like an app, not a macro.** Named home, repeatable job, history/state, clear controls — not a paste-bin of prompts.
-3. **Donna-native.** Apps should compose with memory, notes, chat, and voice where it helps — not be a bolted-on automation island.
-4. **Authorable by normals.** Power users can go deep; most people should create via guided UI and/or by asking Donna to build/configure the app.
-5. **Safe by default.** Private until published. Runs as the installing user. No silent access to other people’s data.
-6. **Expandable platform.** Start with a coherent core model; leave room for richer UI, tools, workflows, and distribution without rewriting the concept.
+Users can create, run, and (optionally) publish **Mini Apps**: named, durable product surfaces on Donna that:
+
+1. Do one clear job well
+2. Run on demand and/or from triggers
+3. Use Donna’s brain under the **installing user’s** identity
+4. Keep configuration, history, and artifacts of their own
+5. Feel like apps (home screen, controls, results) — not macros buried in chat history
 
 ---
 
-## 4. Example scenarios (illustrative, not exhaustive)
+## Product principles
 
-These are prompts for the epic shape — not a v1 scope commitment.
+1. **Personal-first** — usefulness for yourself is the default win; sharing is optional
+2. **App, not macro** — identity, home, history/state, controls
+3. **Donna-native** — compose with memory, notes, chat, voice, and (where relevant) Actions
+4. **Authorable by normals** — builder UI + “ask Donna to make this app”
+5. **Safe by default** — private until published; runs as installer; no cross-user data bleed
+6. **Platform that can grow** — coherent core object model that expands into richer UI/tools/workflows without a rewrite
 
-| Scenario | Why it’s more than a prompt recipe |
-|----------|-------------------------------------|
-| Morning news / interest brief at a fixed time | Schedule, preferences, sources, delivery, history |
+---
+
+## Core abstraction
+
+| Object | Meaning |
+|--------|---------|
+| **Mini App (definition)** | Author-owned recipe: identity, instructions/behavior, input schema, tool policy, output schema, default triggers, visibility |
+| **Install** | Per-user instance of a definition: enabled flag, schedule/timezone, personal config overrides, notification prefs |
+| **Run** | One execution: trigger → pending/running → succeeded/failed; stores resolved inputs, output/artifacts, timings, errors |
+| **Artifact** | Durable result from a run (brief, report, list, structured record) browsable in the app home |
+| **Template** | First-party or curated starter definition users can install/fork |
+
+### Trust & tenancy
+
+- Runs always execute as the **installing user** (their memory, notes, connectors, quotas)
+- Publishing shares the **definition**, never other users’ runs/artifacts
+- Private by default; `unlisted` (link) and `public` (gallery) are explicit choices
+
+### Relationship to Intent → Action (#132)
+
+| Layer | Role |
+|-------|------|
+| **Actions** | Discrete executable capabilities (remind, HTTP call, draft message, …) with confirm/ledger |
+| **Mini Apps** | Packaged **experiences** — UI + schedule + state + multi-step logic that may *call* actions, chat/LLM turns, and tools |
+
+Mini Apps should not duplicate the action ledger. Prefer: Mini App run → (optional) propose/execute Actions via the Actions platform when side effects are needed. Chat remains for free-form conversation; Mini Apps for named recurring jobs.
+
+---
+
+## Architecture (high level)
+
+```
+Authoring
+  ├─ Builder UI (web/iOS)
+  └─ Donna-assisted (“make me an app that…”) → definition draft
+
+Definitions (mini_apps)
+  └─ Installs (per user: schedule, config, notify)
+
+Triggers
+  ├─ Manual “Run now”
+  ├─ Server scheduler (time / cron-like, timezone-aware)
+  ├─ Chat/voice invoke (“run my news app”)
+  └─ Later: events (note added, calendar, webhook, action outcomes)
+
+Runtime
+  └─ Mini App runner
+        ├─ Resolve inputs + placeholders
+        ├─ Apply tool policy (memory, web, notes, actions…)
+        ├─ Multi-step / LLM / structured output
+        └─ Persist run + artifacts
+
+Surfaces
+  ├─ Mini Apps home / detail / history (web + iOS)
+  ├─ Notifications on complete
+  └─ Gallery / install / fork (share phase)
+```
+
+**Server (proposed):** `donna-server-go/internal/miniapps/` + storage + scheduler tick (or dedicated cron worker when multi-replica).
+
+**Clients:** Mini Apps area in `donna-web` and `donna-app` (shared API client later via `@donna/client-core` if plan 02 lands).
+
+---
+
+## Example scenarios (drive requirements)
+
+| Scenario | Capabilities exercised |
+|----------|------------------------|
+| Morning interest/news brief at a fixed time | Schedule, web tools, preferences, artifacts, notify |
 | Weekly personal review from notes + chats | Multi-source context, structured output, archive |
-| “Prep me for this meeting” from a calendar event | Event trigger, inputs, short-lived UI |
-| Habit / accountability check-ins | State over time, reminders, streak or log |
-| Research desk on a topic | Saved configuration, tools, iterative runs, artifacts |
-| Shared team ritual (e.g. standup helper) | Install/share, per-user config, permissions |
-| “Turn this chat into an app” | Authoring UX: Donna helps create the mini app |
-| Lightweight tool with a tiny form UI | Inputs → run → rendered result (not only chat transcript) |
-
-Add/remove scenarios here as the plan evolves.
+| Meeting prep from a calendar event | Event trigger, inputs, short-lived result UI |
+| Habit / accountability check-ins | Long-lived state, reminders, log/streak artifact |
+| Research desk on a topic | Config, iterative runs, tool policy, artifact library |
+| Shared standup / ritual helper | Install/share, per-user config, permissions |
+| “Turn this chat into an app” | NL authoring from conversation context |
+| Small form tool (inputs → rendered result) | Input schema, structured output, non-chat UI |
 
 ---
 
-## 5. Capability areas (epic backlog themes)
+## Phased delivery
 
-Treat these as **themes to refine**, not an implementation checklist. Ordering and depth TBD.
+### Phase 1 — Platform skeleton (personal core) — [#146](https://github.com/kishansagathiya/donna/issues/146)
 
-### 5.1 App identity & lifecycle
-- Create, rename, archive, delete
-- App home (overview, last run, controls)
-- Versioning / drafts vs published definition
-- Ownership transfer / fork lineage (later)
+**Goal:** End-to-end personal Mini App without sharing.
 
-### 5.2 Authoring
-- Form-based builder (structured config)
-- Natural-language authoring (“Donna, make me an app that…”)
-- Edit after create; test run while building
-- Templates / starter apps (first-party + community later)
+**Scope (proposed):**
 
-### 5.3 Logic & intelligence
-- Instructions / system behavior beyond a single user prompt
-- Parameters & user inputs (forms, choices, files, links)
-- Multi-step flows (gather → think → act → present)
-- Tool use policies (web, memory, notes, future integrations)
-- Structured outputs (not only free text) for reliable UI
+- [ ] Object model + Supabase migration (`mini_apps`, `mini_app_installs`, `mini_app_runs`, artifacts as needed)
+- [ ] Go storage + CRUD APIs for definitions/installs/runs
+- [ ] Manual **Run now** via runner (LLM path + tool flags; reuse pipeline where possible)
+- [ ] Time schedule on installs (daily/weekly + timezone) + server tick / claim due installs
+- [ ] Web: My Apps list, create/edit, detail, run history, latest artifact view
+- [ ] Basic failure states and timeouts
 
-### 5.4 Triggers & runtime
-- Manual run
-- Time schedules (daily/weekly/cron-like) with timezone
-- Event triggers (note added, calendar, webhook, chat command — explore)
-- Background execution with reliable server-side scheduling
-- Run history, logs, failures, retries
-- Quotas / rate limits / cost awareness
+**Out of scope:** Gallery, public/unlisted, iOS parity (can slip to Phase 1b), rich custom layouts, Actions integration.
 
-### 5.5 State, memory & artifacts
-- Per-install configuration (preferences that aren’t the shared definition)
-- Per-app memory/state (what this app remembers across runs)
-- Artifacts (saved briefs, reports, lists) browsable in the app
-- Optional write-back into Notes / Memory with clear user control
+**Acceptance:**
 
-### 5.6 Experience / UI
-- Dedicated Mini Apps area in web + iOS
-- App detail: configure, run, history, share
-- Result presentation beyond a chat bubble (simple layouts, lists, digests)
-- Notifications / email / in-app inbox for completed runs
-- Voice entry points where natural (“run my news app”)
-
-### 5.7 Sharing & distribution
-- Private (default), unlisted link, public gallery
-- Install vs fork
-- What installers can customize (schedule, preferences) vs locked definition
-- Trust & safety (review, report, abuse limits)
-- First-party apps (e.g. how Daily Briefing relates — see open questions)
-
-### 5.8 Platform & admin
-- Permissions model
-- Observability for runs
-- Migration/version compatibility as the app model grows
-- Analytics that respect privacy
+- User creates “My morning news,” sets 08:00 local, enables web search
+- **Run now** produces a stored run + readable result
+- Next due schedule fires without opening chat; history shows the run
 
 ---
 
-## 6. Relationship to existing Donna surfaces
+### Phase 2 — App depth (inputs, state, results UI) — [#147](https://github.com/kishansagathiya/donna/issues/147)
 
-| Existing | Relationship to Mini Apps (open) |
-|----------|----------------------------------|
-| Chat / voice | Authoring + invocation surface; not a replacement for general conversation |
-| Notes | Possible input source and/or artifact sink |
-| Memory | Available to apps under user control; apps may also keep scoped state |
-| Daily briefing (`/notes/daily-check`) | Candidate first-party mini app **or** remains a built-in adjacent feature — decide later |
-| Saved prompts (if any) | Insufficient alone; may migrate into mini-app authoring |
+**Goal:** Apps feel like apps, not scheduled prompts.
 
----
+**Scope (proposed):**
 
-## 7. Non-goals (for now — revisit as epic matures)
+- [ ] Input schema / parameters (form fields the user fills or saves as defaults)
+- [ ] Structured output schema → simple rendered views (list, sections, digest)
+- [ ] Per-install config + light per-app state
+- [ ] Artifacts browser on app home
+- [ ] Optional write-back to Notes (explicit user toggle)
+- [ ] iOS Mini Apps surfaces (parity with web Phase 1+)
+- [ ] Invoke from chat/voice by app name
 
-These are provisional fences so the epic doesn’t become “build a whole OS”:
+**Acceptance:**
 
-- Arbitrary untrusted code execution / full custom React bundles uploaded by users
-- A general Zapier replacement on day one
-- Paid marketplace / tipping (can be discussed later)
-- Replacing core chat, notes, or memory products
-
-As the plan firms up, some of these may move into later epic phases rather than stay forever out.
+- User can configure preferences (topics, length, sources) without editing raw prompt text only
+- Results show in a dedicated app result view, not only a chat transcript dump
+- App retains useful history/artifacts across days
 
 ---
 
-## 8. Open questions (actively edit this list)
+### Phase 3 — Authoring & templates — [#148](https://github.com/kishansagathiya/donna/issues/148)
 
-1. **What is the minimum object model?** Definition vs install vs run vs artifact — how rich before first ship?
-2. **How much UI can a mini app have?** Text digest only → simple structured views → user-defined layouts?
-3. **How are apps authored?** Builder UI, Donna-assisted, code-like config, or all three over time?
-4. **What triggers matter first** after manual + daily schedule?
-5. **How does sharing work ethically/product-wise?** Show full definition on install? Allow updates to push to installers?
-6. **Is Daily Briefing a mini app** or a sibling feature that teaches the pattern?
-7. **Where do mini apps live in navigation** on iOS vs web without cluttering the core loop?
-8. **What’s the first lovable vertical?** News brief is easy to explain — is it the right wedge, or is “apps from chat” the wedge?
-9. **Multiplayer:** personal only at first, or early shared installs for households/teams?
-10. **Success metric for the epic:** apps created? weekly active apps? retention lift? sharing rate?
+**Goal:** Easy creation for non-power-users.
 
----
+**Scope (proposed):**
 
-## 9. Epic shape (placeholder milestones)
+- [ ] Guided builder (job, triggers, tools, output style)
+- [ ] Donna-assisted authoring from chat (“make this an app”)
+- [ ] First-party templates (morning brief, weekly review, …)
+- [ ] Test-run while editing; draft vs active definition
+- [ ] Clarify relationship: Daily Briefing as template vs built-in sibling
 
-Milestones below are **intentionally coarse**. We will rewrite them after the open questions settle. No schema/API/UI work until then.
+**Acceptance:**
 
-| Milestone | Intent |
-|-----------|--------|
-| **M0 — Plan** | This document; align on definition, principles, wedge |
-| **M1 — Core model** | Agree object model + authoring + runtime story on paper |
-| **M2 — Personal wedge** | First end-to-end personal mini app experience (scope TBD from §4/§8) |
-| **M3 — Richer app behavior** | Inputs, state/artifacts, better results UI, more triggers |
-| **M4 — Share & discover** | Publish, install, fork, gallery/trust basics |
-| **M5 — Platform polish** | Notifications, templates, first-party apps, hardening |
+- New user can create a useful app in under a few minutes without writing a “prompt essay”
+- At least 2–3 first-party templates install cleanly
 
 ---
 
-## 10. How we’ll use this doc
+### Phase 4 — Share & discover — [#149](https://github.com/kishansagathiya/donna/issues/149)
 
-1. Keep editing §§2–8 until the product story feels right.
-2. Only then break **M1+** into GitHub epic + issues.
-3. Implementation PRs should link back here; if reality diverges, update this plan first.
+**Goal:** Make an app available to other users.
+
+**Scope (proposed):**
+
+- [ ] Visibility: private / unlisted / public
+- [ ] Install flow (copy schedule defaults; runs as installer)
+- [ ] Fork-to-own
+- [ ] Gallery (web + app)
+- [ ] Trust & safety basics (report, rate limits, no run leakage)
+- [ ] Policy for definition updates vs installed pins
+
+**Acceptance:**
+
+- Author publishes unlisted link; friend installs and gets their own schedule/results
+- Friend cannot see author’s run history
+- Fork lets friend customize without breaking author’s definition
 
 ---
 
-## 11. Decision log
+### Phase 5 — Platform polish & integrations — [#150](https://github.com/kishansagathiya/donna/issues/150)
 
-| Date | Decision | Notes |
-|------|----------|-------|
-| 2026-07-16 | Treat Mini Apps as an epic-scale product surface, **not** “saved prompt recipes.” | Prompt/schedule news brief is an example scenario only. |
-| 2026-07-16 | Plan-only for now; no schema/API/UI implementation in this pass. | Earlier narrow plan + migration were superseded. |
+**Goal:** Harden and connect to the rest of Donna.
+
+**Scope (proposed):**
+
+- [ ] Push/email delivery for completed runs
+- [ ] Deeper Actions integration (side effects via #132 with confirm where needed)
+- [ ] Event triggers (notes/calendar/webhooks) as they become available
+- [ ] Quotas, observability, admin/debug views
+- [ ] Versioning / migration story for definitions
+
+**Acceptance:**
+
+- Scheduled apps reliably notify
+- Side-effecting apps go through Actions trust model
+- Ops can diagnose stuck/failed runs
+
+---
+
+## Surfaces (product UI)
+
+| Surface | Web | iOS |
+|---------|-----|-----|
+| Mini Apps home | Sidebar section / `/app/mini-apps` | Tab or hub entry |
+| Create / edit | Builder page | Builder screens |
+| App detail | Config, run, history, artifacts | Same |
+| Gallery | `/app/mini-apps/gallery` | Gallery screens |
+| Notifications | Browser optional | Notifee (reuse daily briefing patterns) |
+| Chat invoke | Slash/command or NL | Same + voice |
+
+UI guidance: avoid marketplace chrome early; personal home + detail first. Gallery can be simple lists until share phase.
+
+---
+
+## Non-goals (initial)
+
+- Arbitrary untrusted code / user-uploaded React bundles
+- Full Zapier-style general automation on day one
+- Paid marketplace / tipping
+- Replacing chat, notes, memory, or daily briefing wholesale
+- Fully autonomous irreversible external side effects without Actions-style confirmation
+
+---
+
+## Success criteria (epic-level)
+
+- Users create Mini Apps for themselves and return to them (weekly active installs/runs)
+- At least one flagship personal loop (e.g. morning brief) works reliably on a schedule
+- Sharing works without leaking private runs/memory
+- Authoring is possible without being a prompt engineer
+- Clear composition story with Actions (#132), not two competing automation systems
+
+---
+
+## Open questions
+
+1. Exact minimum object model for Phase 1 (are artifacts separate from runs?)
+2. How rich is Mini App UI in Phase 2 (fixed renderers vs declarative layout)?
+3. Wedge: news brief vs “apps from chat” vs templates-first?
+4. Is Daily Briefing a Mini App template or a permanent built-in?
+5. Definition updates: push to installers or pin versions?
+6. Navigation placement without cluttering Chat/Notes/Today
+7. Multiplayer household/team installs in Phase 4 or later?
+8. Primary success metric (apps created, WAUs of apps, retention, share rate)?
+
+---
+
+## Decision log
+
+| Date | Decision |
+|------|----------|
+| 2026-07-16 | Mini Apps ≠ prompt recipes; epic-scale platform |
+| 2026-07-16 | Plan + GitHub epic first; implementation after phases are agreed |
+| 2026-07-16 | Compose with Actions (#132); don’t fork a second side-effect system |
