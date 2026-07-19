@@ -1,8 +1,9 @@
 import http from "node:http";
 import { chromium } from "playwright";
 
-const PORT = Number(process.env.DONNA_BROWSER_PORT || 9229);
-const HOST = process.env.DONNA_BROWSER_HOST || "127.0.0.1";
+// Prefer platform PORT (Railway/Heroku); DONNA_BROWSER_PORT for local overrides.
+const PORT = Number(process.env.PORT || process.env.DONNA_BROWSER_PORT || 9229);
+const HOST = process.env.DONNA_BROWSER_HOST || (process.env.PORT ? "0.0.0.0" : "127.0.0.1");
 const MAX_CONCURRENCY = Number(process.env.DONNA_BROWSER_CONCURRENCY || 2);
 const NAV_TIMEOUT_MS = Number(process.env.DONNA_BROWSER_NAV_TIMEOUT_MS || 20_000);
 
