@@ -37,4 +37,5 @@ create_bucket() {
 create_bucket "conversation-audio"
 create_bucket "note-audio"
 create_bucket "knowledge-assets"
+create_bucket "chat-attachments"
 echo "Storage buckets ready."
