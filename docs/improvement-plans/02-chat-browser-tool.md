@@ -1,6 +1,6 @@
 # Improvement Plan 2: Chat Browser Tool
 
-**Status:** Proposed  
+**Status:** In progress (MVP implemented: tool loop + `fetch_url` + Playwright sidecar)  
 **Pillar:** Chat grounding / agent tools  
 **Constraint:** Reliability first, then cost/speed  
 **Target:** Donna can open a URL mid-chat, read the page, and answer from it — without the user pasting content by hand

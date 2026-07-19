@@ -5,6 +5,7 @@
     "dev:iphone": "node scripts/dev-iphone.mjs",
     "dev:server": "cd donna-server-go && go run ./cmd/server",
     "start:server": "cd donna-server-go && go run ./cmd/server",
+    "dev:browser": "cd donna-browser && npm start",
     "test": "cd donna-server-go && go test ./...",
     "test:voice": "node scripts/ws-test.mjs",
     "test:voice:no-auth": "SUPABASE_URL= SUPABASE_SERVICE_ROLE_KEY= npm run test:voice",
