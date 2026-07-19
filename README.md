@@ -5,8 +5,9 @@ Another AI second brain, but this one is the BEST!!
 | Project | Description |
 |---------|-------------|
 | [donna-app](./donna-app) | iOS app |
-| [donna-web](./donna-web) | Landing page |
-| [donna-server-go](./donna-server-go) | Voice backend (WebSocket STT → LLM → TTS) |
+| [donna-web](./donna-web) | Landing page + web chat |
+| [donna-server-go](./donna-server-go) | Chat + voice backend (HTTP/SSE + WebSocket STT → LLM → TTS) |
+| [donna-browser](./donna-browser) | Optional Playwright sidecar for `browse_page` chat tool |
 
 ## Auth (Supabase + Sign in with Apple / Google)
 
@@ -32,6 +33,23 @@ npm install
 npm run dev:server     # http://localhost:8787, ws://localhost:8787/voice
 npm run test:voice     # sends a sample utterance, writes reply audio to voice/ws-test-reply.bin
 ```
+
+### Chat browser tools (optional)
+
+Text chat can call mid-turn tools to read websites:
+
+- `fetch_url` — HTTP fetch + HTML→text (always available when `DONNA_CHAT_TOOLS=true`, the default)
+- `browse_page` — Playwright Chromium via the `donna-browser` sidecar (needs `DONNA_BROWSER_URL`)
+
+```bash
+cd donna-browser && npm install && npm run install-browsers
+# terminal A
+npm run dev:browser                  # http://127.0.0.1:9229
+# terminal B — add to .env: DONNA_BROWSER_URL=http://127.0.0.1:9229
+npm run dev:server
+```
+
+See [docs/improvement-plans/02-chat-browser-tool.md](./docs/improvement-plans/02-chat-browser-tool.md).
 
 ### App → local backend (no code changes)
 
