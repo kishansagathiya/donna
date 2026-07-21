@@ -1,0 +1,5 @@
+{
+  "$ref": "../donna-server-go/evals/notes_memory_v2_scenarios.json",
+  "scenario_count": 125,
+  "note": "Canonical fixtures live in donna-server-go/evals/notes_memory_v2_scenarios.json"
+}
