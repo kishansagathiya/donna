@@ -6,7 +6,7 @@ Another AI second brain, but this one is the BEST!!
 |---------|-------------|
 | [donna-app](./donna-app) | iOS app |
 | [donna-web](./donna-web) | Landing page |
-| [donna-server-go](./donna-server-go) | Voice backend (WebSocket STT → LLM → TTS) |
+| [donna-server-go](./donna-server-go) | Chat + voice backend (HTTP chat; WebSocket STT) |
 
 ## Auth (Supabase + Sign in with Apple / Google)
 
