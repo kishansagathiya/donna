@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 /**
- * End-to-end voice session test without the iOS app.
+ * End-to-end voice STT test without the iOS/web app.
+ *
+ * Voice is speech-to-text only; talk replies go through POST /chat.
  *
  * Usage:
  *   npm run dev:server   # in another terminal
@@ -22,7 +24,6 @@ const wsUrl = process.env.DONNA_WS_URL ?? 'ws://localhost:8787/voice';
 const samplePath =
   process.env.DONNA_SAMPLE_WAV ??
   path.join(repoRoot, 'business-tech-thoughts/voice/samples/utterance-1.wav');
-const outPath = path.join(repoRoot, 'business-tech-thoughts/voice/ws-test-reply.bin');
 
 function parseWavPcm16(buffer) {
   const view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
@@ -95,20 +96,21 @@ async function main() {
     ws.once('error', reject);
   });
 
+  let transcript = null;
+
   ws.on('message', (raw) => {
     const message = JSON.parse(raw.toString());
     if (message.type === 'turn.phase') {
       console.log(`phase: ${message.phase}`);
     } else if (message.type === 'turn.transcript') {
+      transcript = message.text;
       console.log(`transcript: ${message.text}`);
-    } else if (message.type === 'turn.reply') {
-      console.log(`reply: ${message.text}`);
     } else if (message.type === 'error') {
       console.error(`error [${message.code}]: ${message.message}`);
     }
   });
 
-  send(ws, { type: 'session.start' });
+  send(ws, { type: 'session.start', mode: 'talk' });
   await waitFor(ws, (m) => m.type === 'session.ready');
   console.log('session ready');
 
@@ -125,30 +127,22 @@ async function main() {
 
   send(ws, { type: 'turn.end' });
 
-  const audioOut = [];
-  let format = 'mp3';
-
-  while (true) {
-    const message = await waitFor(
-      ws,
-      (m) => m.type === 'audio.out' || m.type === 'turn.done' || m.type === 'error',
-    );
-    if (message.type === 'error') {
-      throw new Error(`${message.code}: ${message.message}`);
-    }
-    if (message.type === 'audio.out') {
-      format = message.format;
-      audioOut.push(Buffer.from(message.data, 'base64'));
-    }
-    if (message.type === 'turn.done') {
-      console.log('timings:', message.timings);
-      break;
-    }
+  const done = await waitFor(
+    ws,
+    (m) => m.type === 'turn.done' || m.type === 'error',
+  );
+  if (done.type === 'error') {
+    throw new Error(`${done.code}: ${done.message}`);
   }
 
-  const output = Buffer.concat(audioOut);
-  await fs.writeFile(outPath, output);
-  console.log(`wrote ${output.length} bytes (${format}) to ${outPath}`);
+  console.log('timings:', done.timings);
+  if (done.skipped) {
+    console.log('turn skipped');
+  } else if (!transcript) {
+    throw new Error('turn.done without turn.transcript');
+  } else {
+    console.log('STT ok — send this transcript through POST /chat');
+  }
 
   send(ws, { type: 'session.end' });
   ws.close();
