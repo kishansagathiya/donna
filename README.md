@@ -8,16 +8,17 @@ Another AI second brain, but this one is the BEST!!
 | [donna-web](./donna-web) | Landing page |
 | [donna-server-go](./donna-server-go) | Chat + voice backend (HTTP chat; WebSocket STT) |
 
-## Auth (Supabase + Sign in with Apple / Google)
+## Auth (Supabase + Apple / Google / email)
 
 Donna uses Supabase Auth with Postgres, same pattern as [glucose-ai](https://github.com/kishansagathiya/glucose-ai).
 
 1. Create a Supabase project.
 2. Enable Apple provider in Supabase Auth (Client ID: `com.kishansagathiya.donna`; web Services ID: `com.kishansagathiya.donna.web`).
 3. Enable Google provider in Supabase Auth with a Google Cloud **Web** OAuth Client ID + Secret (and the iOS Client ID for the app). For native iOS Google Sign-In, enable **Skip nonce check**.
-4. Set `SUPABASE_URL` and publishable key in `donna-app/src/config.ts`.
-5. Set `GOOGLE_WEB_CLIENT_ID` / `GOOGLE_IOS_CLIENT_ID` in `donna-app/src/config.ts`, and add the iOS `REVERSED_CLIENT_ID` URL scheme to `donna-app/ios/Donna/Info.plist`.
-6. Set `SUPABASE_URL` in root `.env` so `donna-server-go` requires a valid JWT on `/voice`.
+4. Keep **Email** provider enabled for login-only email/password (no public signup UI — create users in the Supabase Dashboard or Admin API).
+5. Set `SUPABASE_URL` and publishable key in `donna-app/src/config.ts`.
+6. Set `GOOGLE_WEB_CLIENT_ID` / `GOOGLE_IOS_CLIENT_ID` in `donna-app/src/config.ts`, and add the iOS `REVERSED_CLIENT_ID` URL scheme to `donna-app/ios/Donna/Info.plist`.
+7. Set `SUPABASE_URL` in root `.env` so `donna-server-go` requires a valid JWT on `/voice`.
 
 Web Google sign-in uses Supabase OAuth redirect (no client ID in `donna-web`). See `donna-web/README.md` for redirect URL setup.
 
@@ -71,7 +72,7 @@ primary client-visible measurement.
 | Env | Default | Notes |
 |-----|---------|-------|
 | `DONNA_API_BASE` | `https://donna-server-go-production.up.railway.app` | set to `http://localhost:8787` for local |
-| `DONNA_AUTH_TOKEN` | _(required for prod)_ | user access_token JWT from Supabase (Apple or Google Sign-In) |
+| `DONNA_AUTH_TOKEN` | _(required for prod)_ | user access_token JWT from Supabase (Apple, Google, or email/password) |
 | `DONNA_TTFT_RUNS` | `5` | iterations per client |
 | `DONNA_TTFT_PROMPT` | `Hello` | prompt sent each run |
 | `DONNA_TTFT_MODEL` | _(server default)_ | LLM slug to benchmark; must be in server's `available_models` |
