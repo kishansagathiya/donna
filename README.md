@@ -46,6 +46,13 @@ The iOS app reads voice settings from the same root `.env` (synced when you `npm
 
 Release builds always use production. Restart Metro after changing `.env`.
 
+## Error reporting (auto GitHub issues)
+
+Server errors (`log.Error`, panics) and web/iOS client errors (posted to `POST /errors`) become GitHub issues: first occurrence creates one issue with `auto-error` + source labels, repeats comment on it. Disabled by default.
+
+1. Create a fine-grained GitHub PAT with **Issues: Read & Write** on `kishansagathiya/donna`.
+2. Set in `.env` / Railway: `DONNA_ERROR_REPORTS_ENABLED=true`, `GITHUB_TOKEN=<pat>` (repo override: `DONNA_GITHUB_ISSUE_REPO`).
+
 ## Tests
 
 ```bash
