@@ -12,6 +12,10 @@
 | LLM routing | **OpenRouter** for chat/completions and tools |
 | Deferred | **GPT Realtime** — only if we later need sub-500ms duplex voice and barge-in |
 
+### Separate Voice harness (Gemini Live)
+
+Additive path for Gemini-style duplex conversations (app/web **Voice** tab → `GET /voice/live`). Does **not** replace chat mic / `/voice` STT. Requires `GEMINI_API_KEY`. Memory: seed + `retrieve_memory` tool → Donna `memory.Retriever`; turns persist via conversation store.
+
 ## Pipeline
 
 ```

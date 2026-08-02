@@ -6,7 +6,7 @@ Another AI second brain, but this one is the BEST!!
 |---------|-------------|
 | [donna-app](./donna-app) | iOS app |
 | [donna-web](./donna-web) | Landing page |
-| [donna-server-go](./donna-server-go) | Chat + voice backend (HTTP chat; WebSocket STT) |
+| [donna-server-go](./donna-server-go) | Chat + voice backend (HTTP chat; WebSocket STT + Gemini Live `/voice/live`) |
 
 ## Auth (Supabase + Apple / Google / email)
 
@@ -26,13 +26,16 @@ Web Google sign-in uses Supabase OAuth redirect (no client ID in `donna-web`). S
 
 ```bash
 cp .env.example .env   # add OPENROUTER_API_KEY + a TTS key (Cartesia, ElevenLabs, or OpenAI)
+# For the Voice tab (Gemini Live duplex): also set GEMINI_API_KEY
 set -a
 source .env
 set +a
 npm install
-npm run dev:server     # http://localhost:8787, ws://localhost:8787/voice
+npm run dev:server     # http://localhost:8787, ws://localhost:8787/voice (+ /voice/live)
 npm run test:voice     # sends a sample utterance, writes reply audio to voice/ws-test-reply.bin
 ```
+
+Realtime **Voice** (app/web Voice tab) uses `ws://localhost:8787/voice/live` and is separate from chat mic dictation.
 
 ### App → local backend (no code changes)
 
