@@ -296,12 +296,13 @@ At agent start (and after compressions):
 4. Persist a compact `memory_snapshot` on `agent_runs` for audit (“why did it pick United?”).
 5. Mid-run: `memory_search` + `session_search` tools — don’t stuff everything into the first prompt (Hermes progressive disclosure).
 
-### Approval UX
+### Approval UX + mid-run steering
 
 Extend existing Actions inbox:
 
 - New card type when `action_runs.agent_run_id` is set: show agent goal, proposal summary (itinerary/price/photo picks), Confirm / Deny / “Tell Donna…”.
-- Agent detail sheet: live step timeline (poll `GET /agent-runs/{id}/steps` or SSE).
+- Agent detail sheet: live step timeline (SSE preferred) with tool names streaming — Hermes-style observability.
+- **Redirect**: from Chat or the sheet, send a steering message into the same run (interrupt-and-redirect).
 - Push / local notification when status → `waiting_for_user` or `succeeded`.
 
 Do **not** invent a separate “Agents” tab until volume justifies it; nest under Actions + optional Chat status chips.
