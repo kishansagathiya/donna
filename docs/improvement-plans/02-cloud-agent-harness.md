@@ -1,10 +1,21 @@
 # Improvement Plan 2: Per-user Cloud Agent Harness
 
-**Status:** Proposed  
+**Status:** In progress (Phase 1 shipping)  
 **Pillar:** Act (memory → completed work)  
 **Constraint:** Extend the existing Intent → Action → Confirm loop; do not replace chat or builtins  
 **Quality bar:** Harness as good as [Hermes Agent](https://github.com/NousResearch/hermes-agent) (Nous Research) — then win on consumer UX + Donna memory + cloud-for-everyone  
 **Target:** Long-running agents that work on cloud for every Donna user — book flights, find photos, research and execute — while the phone/laptop is closed. User only approves irreversible steps.
+
+## Implementation status (Phase 1)
+
+Shipped in this PR:
+
+- Migration `0023_agent_runs.sql` — `agent_runs`, `agent_steps`, `action_runs.agent_run_id`, `background_jobs` target `agent_run`
+- `donna-server-go/internal/agents` — Hermes-shaped harness (budgets, compression, cancel/redirect, approval pause), tool registry (`todo`, `request_approval`, `memory_search`, `search_notes`, `fetch_url`, `session_search`), spawner + background worker
+- APIs: `POST/GET /agent-runs`, steps, cancel, redirect
+- Env: `DONNA_CLOUD_AGENTS` (default on)
+- Web: `/app/agents` live timeline UI
+- App: `agentsApi` client (UI screen can follow)
 
 ## Why this exists
 
