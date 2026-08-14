@@ -16,7 +16,7 @@
  *   node scripts/ttft-web.mjs
  *
  * Env:
- *   DONNA_API_BASE      default https://donna-server-go-production.up.railway.app
+ *   DONNA_API_BASE      default https://api.donnadoesit.com
  *   DONNA_AUTH_TOKEN    Supabase JWT for /chat (RequireAuth is on in prod). Required for prod.
  *   DONNA_TTFT_RUNS     iteration count, default 5
  *   DONNA_TTFT_PROMPT   prompt string, default "Hello"
@@ -36,7 +36,7 @@
 
 const apiBase =
   process.env.DONNA_API_BASE ??
-  'https://donna-server-go-production.up.railway.app';
+  'https://api.donnadoesit.com';
 const token = process.env.DONNA_AUTH_TOKEN ?? '';
 const runs = Number(process.env.DONNA_TTFT_RUNS ?? 5);
 const prompt = process.env.DONNA_TTFT_PROMPT ?? 'Hello';
