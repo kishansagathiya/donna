@@ -55,6 +55,7 @@ The product differentiator vs Hermes is **who it’s for and where it runs** (ph
 | Skills / procedural memory (`SKILL.md`, agentskills.io) | Per-user + system skills Donna learns (“how Kishan books flights”); progressive disclosure into prompt | Must (Phase 2–3) |
 | Browser + web tool depth | Full browse: navigate / snapshot / click / type / vision — not read-only extract only | Must (Phase 2+) |
 | Cron / unattended jobs | Scheduled agent goals (“every Monday brief”, “watch this price”) on cloud | Must (Phase 3) |
+| **AI employees** | Durable goal identity that keeps spawning shifts until done | Must (see [03-ai-employees.md](./03-ai-employees.md)) |
 | Platform-agnostic core | One harness serves chat escalate, voice, Actions, cron, API — entry points differ, loop doesn’t | Must |
 | Closed learning loop (skills from trajectories) | After complex successes/failures, distill or update skills; mine `agent_steps` | Should (Phase 3–4) |
 | Terminal / code sandbox backends | Optional later for power users; **not** the consumer v1 surface | Later |
