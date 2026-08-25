@@ -26,6 +26,12 @@ pnpm-debug.log*
 
 # Test coverage
 coverage/
+coverage.out
+coverage.html
+coverage.txt
+**/coverage.out
+**/coverage.html
+**/coverage.txt
 
 # TypeScript
 *.tsbuildinfo

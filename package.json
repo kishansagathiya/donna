@@ -7,6 +7,7 @@
     "dev:server": "cd donna-server-go && go run ./cmd/server",
     "start:server": "cd donna-server-go && go run ./cmd/server",
     "test": "cd donna-server-go && go test ./...",
+    "test:coverage": "cd donna-server-go && go test ./... -coverprofile=coverage.out -covermode=atomic && go tool cover -func=coverage.out",
     "test:voice": "node scripts/ws-test.mjs",
     "test:voice:no-auth": "SUPABASE_URL= SUPABASE_SERVICE_ROLE_KEY= npm run test:voice",
     "test:ttft": "node scripts/ttft-web.mjs && node scripts/ttft-rn.mjs",

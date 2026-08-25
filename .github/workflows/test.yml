@@ -14,11 +14,13 @@ permissions:
 
 jobs:
   go:
-    name: Go (test, vet, build)
+    name: Go (test, vet, build, coverage)
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: donna-server-go
+    env:
+      GO_MIN_COVERAGE: "25"
     steps:
       - uses: actions/checkout@v4
         with:
@@ -32,7 +34,33 @@ jobs:
       - name: Build
         run: go build ./...
       - name: Test
-        run: go test ./... -race -count=1
+        run: go test ./... -race -count=1 -coverprofile=coverage.out -covermode=atomic
+      - name: Check coverage
+        run: |
+          go tool cover -html=coverage.out -o coverage.html
+          go tool cover -func=coverage.out | tee coverage.txt
+          total=$(awk '/^total:/ { gsub("%", "", $3); print $3 }' coverage.txt)
+          if [ -z "$total" ]; then
+            echo "Could not parse coverage total from coverage.out"
+            exit 1
+          fi
+          echo "Total coverage: ${total}% (minimum ${GO_MIN_COVERAGE}%)"
+          awk -v t="$total" -v m="$GO_MIN_COVERAGE" 'BEGIN {
+            if (t+0 < m+0) {
+              printf "Coverage %.1f%% is below the %.0f%% minimum.\n", t, m
+              exit 1
+            }
+          }'
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: go-coverage
+          path: |
+            donna-server-go/coverage.out
+            donna-server-go/coverage.html
+            donna-server-go/coverage.txt
+          if-no-files-found: ignore
 
   app:
     name: App (test)
