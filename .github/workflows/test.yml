@@ -20,7 +20,7 @@ jobs:
       run:
         working-directory: donna-server-go
     env:
-      GO_MIN_COVERAGE: "25"
+      GO_MIN_COVERAGE: "80"
     steps:
       - uses: actions/checkout@v4
         with:
