@@ -1,5 +1,9 @@
 Another AI second brain, but this one is the BEST!!
 
+**Current release:** [v1.0.0 — Personal Assistant](./CHANGELOG.md)
+
+Donna is a voice-first AI personal assistant on web and iOS. It remembers you, keeps notes and memory, and runs tasks on cloud.
+
 ## Repos
 
 | Project | Description |

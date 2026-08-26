@@ -1,5 +1,7 @@
 {
   "name": "donna",
+  "version": "1.0.0",
+  "description": "Donna v1 — Personal Assistant",
   "private": true,
   "scripts": {
     "dev:iphone": "node scripts/dev-iphone.mjs",
