@@ -18,7 +18,9 @@ create table if not exists notes (
   -- dictated this note out loud; null for typed/manual and compiler-derived
   -- notes. Audio lives in the `note-audio` storage bucket.
   audio_path text,
-  audio_mime text not null default 'audio/wav'
+  audio_mime text not null default 'audio/wav',
+  -- Image attachments (compose/detail). Bytes live in `note-attachments`.
+  attachments jsonb not null default '[]'::jsonb
 );
 
 create index if not exists notes_user_id_note_date_idx on notes (user_id, note_date desc);
