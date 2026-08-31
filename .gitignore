@@ -43,3 +43,4 @@ coverage.txt
 business-tech-thoughts/voice/bakeoff-results.json
 business-tech-thoughts/voice/ws-test-reply.bin
 business-tech-thoughts/voice/*.aiff
+.gstack/
