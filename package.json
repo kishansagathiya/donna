@@ -4,6 +4,7 @@
   "scripts": {
     "dev:iphone": "node scripts/dev-iphone.mjs",
     "dev:ipad": "node scripts/dev-ipad.mjs",
+    "dev:desktop": "bash donna-desktop/scripts/dev-local.sh",
     "dev:server": "cd donna-server-go && go run ./cmd/server",
     "start:server": "cd donna-server-go && go run ./cmd/server",
     "test": "cd donna-server-go && go test ./...",

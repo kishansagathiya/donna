@@ -7,3 +7,6 @@
 [submodule "donna-server-go"]
 	path = donna-server-go
 	url = https://github.com/kishansagathiya/donna-server-go.git
+[submodule "donna-desktop"]
+	path = donna-desktop
+	url = https://github.com/kishansagathiya/donna-desktop.git

@@ -7,6 +7,7 @@ Another AI second brain, but this one is the BEST!!
 | [donna-app](./donna-app) | iOS app |
 | [donna-web](./donna-web) | Landing page |
 | [donna-server-go](./donna-server-go) | Chat + voice backend (HTTP chat; WebSocket STT + Gemini Live `/voice/live`) |
+| [donna-desktop](./donna-desktop) | macOS Tauri app — local agent runtime (menu bar + Go sidecar) |
 
 ## Auth (Supabase + Apple / Google / email)
 
@@ -33,6 +34,7 @@ set +a
 npm install
 npm run dev:server     # http://localhost:8787, ws://localhost:8787/voice (+ /voice/live)
 npm run test:voice     # sends a sample utterance, writes reply audio to voice/ws-test-reply.bin
+npm run dev:desktop    # Donna Desktop (Tauri) against Railway. See donna-desktop/README.md
 ```
 
 Realtime **Voice** (app/web Voice tab) uses `ws://localhost:8787/voice/live` and is separate from chat mic dictation.
